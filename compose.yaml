@@ -1,0 +1,38 @@
+name: myapp
+
+services:
+  web:
+    build:
+      dockerfile: ./web/Dockerfile
+    ports: 
+      - 80:80
+    volumes:
+      - ./web/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/var/www/html
+    depends_on:
+      - app
+
+  app:
+    build:
+      dockerfile: ./app/Dockerfile
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+    
+  db:
+    build:
+      dockerfile: ./db/Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/my.cnf:/etc/mysql/my.cnf
+      - dbdata:/var/lib/mysql
+
+volumes:
+    dbdata:
